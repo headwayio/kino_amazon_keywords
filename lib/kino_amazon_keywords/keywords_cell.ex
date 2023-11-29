@@ -1,7 +1,44 @@
-defmodule KinoAmazonKeywords do
+defmodule KinoAmazonKeywords.KeywordsCell do
   @moduledoc """
   Documentation for `KinoAmazonKeywords`.
   """
+  use Kino.JS
+  use Kino.JS.Live
+  use Kino.SmartCell, name: "Amazon Keywords"
+
+  @impl true
+  def init(_attrs, ctx) do
+    {:ok, ctx}
+  end
+
+  # Other Kino.JS.Live callbacks
+
+  @impl true
+  def handle_connect(ctx) do
+    {:ok, %{}, ctx}
+  end
+
+  @impl true
+  def to_attrs(_ctx) do
+    %{}
+  end
+
+  @impl true
+  def to_source(_attrs) do
+    "Hello world"
+  end
+
+  asset "main.js" do
+    """
+    export function init(ctx, payload) {
+      ctx.importCSS("main.css");
+
+      ctx.root.innerHTML = `
+        <textarea id="source"></textarea>
+      `;
+    }
+    """
+  end
 
   @doc """
   Hello world.

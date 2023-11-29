@@ -19,6 +19,7 @@ defmodule KinoAmazonKeywords.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {KinoAmazonKeywords.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -31,7 +32,6 @@ defmodule KinoAmazonKeywords.MixProject do
       {:kino, "~> 0.11.3"},
       {:req, "~> 0.4.0"},
       {:explorer, "~> 0.7.1"},
-      {:kino, "~> 0.11.0"},
       {:kino_explorer, "~> 0.1.11"}
     ]
   end
