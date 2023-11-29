@@ -7,7 +7,12 @@ defmodule KinoAmazonKeywords.KeywordsCell do
   use Kino.SmartCell, name: "Amazon Keywords"
 
   @impl true
-  def init(_attrs, ctx) do
+  def init(attrs, ctx) do
+    fields = %{
+      "keyword" => attrs["keyword"] || ""
+    }
+
+    ctx = assign(ctx, fields: fields)
     {:ok, ctx}
   end
 
@@ -15,17 +20,24 @@ defmodule KinoAmazonKeywords.KeywordsCell do
 
   @impl true
   def handle_connect(ctx) do
-    {:ok, %{}, ctx}
+    {:ok, %{fields: ctx.assigns.fields}, ctx}
   end
 
   @impl true
-  def to_attrs(_ctx) do
-    %{}
+  def to_attrs(ctx) do
+    ctx.assigns.fields
   end
 
   @impl true
   def to_source(_attrs) do
     "Hello world"
+  end
+
+  @impl true
+  def handle_event("update_keyword", %{"keyword" => value}, ctx) do
+    ctx = update(ctx, :fields, &Map.merge(&1, %{"keyword" => value}))
+    broadcast_event(ctx, "update_keyword", %{"keyword" => value})
+    {:noreply, ctx}
   end
 
   asset "main.js" do
@@ -34,8 +46,39 @@ defmodule KinoAmazonKeywords.KeywordsCell do
       ctx.importCSS("main.css");
 
       ctx.root.innerHTML = `
-        <textarea id="source"></textarea>
+        <div>
+          <label for="keyword">Keyword</label>
+          <input id="keyword" placeholder="My search keyword" />
+        </div>
       `;
+
+      const keywordInput = ctx.root.querySelector("#keyword");
+      keywordInput.value = payload.fields.keyword;
+
+      keywordInput.addEventListener("change", (event) => {
+        ctx.pushEvent("update_keyword", { keyword: event.target.value });
+      });
+
+      ctx.handleEvent("update_keyword", ({ keyword }) => {
+        keywordInput.value = keyword;
+      });
+
+      ctx.handleSync(() => {
+        // Synchronously invokes change listeners
+        document.activeElement &&
+          document.activeElement.dispatchEvent(new Event("change"));
+      });
+    }
+    """
+  end
+
+  asset "main.css" do
+    """
+    #keyword {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 1rem;
+      margin: 1rem 0;
     }
     """
   end
