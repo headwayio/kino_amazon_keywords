@@ -11,7 +11,7 @@ defmodule KinoAmazonKeywords.KeywordsCell do
   @impl true
   def init(attrs, ctx) do
     fields = %{
-      "keyword" => attrs["keyword"]
+      "keyword" => attrs["keyword"] || ""
     }
 
     ctx = assign(ctx, fields: fields)
