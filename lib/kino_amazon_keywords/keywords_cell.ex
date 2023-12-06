@@ -11,7 +11,8 @@ defmodule KinoAmazonKeywords.KeywordsCell do
   @impl true
   def init(attrs, ctx) do
     fields = %{
-      "keyword" => attrs["keyword"] || ""
+      "keyword" => attrs["keyword"] || "",
+      "variants" => attrs["variants"] || false
     }
 
     ctx = assign(ctx, fields: fields)
@@ -44,6 +45,14 @@ defmodule KinoAmazonKeywords.KeywordsCell do
   end
 
   @impl true
+  def handle_event("update_variants", value, ctx) do
+    payload = %{"variants" => value}
+    ctx = update(ctx, :fields, &Map.merge(&1, payload))
+    broadcast_event(ctx, "update", payload)
+    {:noreply, ctx}
+  end
+
+  @impl true
   def handle_cast(_msg, ctx) do
     {:ok, ctx}
   end
@@ -54,21 +63,27 @@ defmodule KinoAmazonKeywords.KeywordsCell do
     end
   end
 
-  defp to_quoted(%{"keyword" => keyword}) do
+  defp to_quoted(%{"keyword" => keyword, "variants" => variants}) do
     quote do
       frame = Kino.Frame.new()
 
       Kino.Frame.render(frame, Kino.Text.new("Running..."))
 
-      keywords =
+      {keywords, variant_keywords} =
         unquote(keyword)
-        |> KinoAmazonKeywords.Keywords.fetch()
-        |> Explorer.Series.from_list(dtype: :string)
+        |> KinoAmazonKeywords.Keywords.fetch(unquote(variants))
 
-      data_frame = Explorer.DataFrame.new(keywords: keywords)
+      keyword_series = Explorer.Series.from_list(keywords, dtype: :string)
 
-      # Kino.Frame.render(frame, data_frame)
-      Kino.Shorts.data_table(data_frame)
+      grid_items =
+        if unquote(variants) do
+          variant_keyword_series = Explorer.Series.from_list(variant_keywords, dtype: :string)
+          [keyword_series, variant_keyword_series]
+        else
+          [keyword_series]
+        end
+
+      Kino.Shorts.grid(grid_items, boxed: true, gap: 8)
     end
   end
 
