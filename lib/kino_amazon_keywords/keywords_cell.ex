@@ -2,7 +2,7 @@ defmodule KinoAmazonKeywords.KeywordsCell do
   @moduledoc false
   use Kino.JS, assets_path: "lib/assets"
   use Kino.JS.Live
-  use Kino.SmartCell, name: "Test Cell"
+  use Kino.SmartCell, name: "Amazon Keywords"
 
   def new do
     Kino.JS.new(__MODULE__, %{fields: %{}})
