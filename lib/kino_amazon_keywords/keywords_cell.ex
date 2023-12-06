@@ -74,16 +74,19 @@ defmodule KinoAmazonKeywords.KeywordsCell do
         |> KinoAmazonKeywords.Keywords.fetch(unquote(variants))
 
       keyword_series = Explorer.Series.from_list(keywords, dtype: :string)
+      keyword_df = Explorer.DataFrame.new(Keywords: keyword_series)
 
-      grid_items =
+      variant_keyword_series = Explorer.Series.from_list(variant_keywords, dtype: :string)
+      variant_keyword_df = Explorer.DataFrame.new(Variants: variant_keyword_series)
+
+      items =
         if unquote(variants) do
-          variant_keyword_series = Explorer.Series.from_list(variant_keywords, dtype: :string)
-          [keyword_series, variant_keyword_series]
+          [Keywords: keyword_df, Variants: variant_keyword_df]
         else
-          [keyword_series]
+          [Keywords: keyword_df]
         end
 
-      Kino.Shorts.grid(grid_items, boxed: true, gap: 8)
+      Kino.Shorts.tabs(items)
     end
   end
 
