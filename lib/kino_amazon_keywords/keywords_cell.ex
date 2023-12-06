@@ -37,7 +37,9 @@ defmodule KinoAmazonKeywords.KeywordsCell do
 
   @impl true
   def handle_event("update_keyword", value, ctx) do
-    ctx = update(ctx, :fields, &Map.merge(&1, %{"keyword" => value}))
+    payload = %{"keyword" => value}
+    ctx = update(ctx, :fields, &Map.merge(&1, payload))
+    broadcast_event(ctx, "update", payload)
     {:noreply, ctx}
   end
 
