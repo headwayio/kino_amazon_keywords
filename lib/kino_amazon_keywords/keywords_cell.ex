@@ -65,10 +65,6 @@ defmodule KinoAmazonKeywords.KeywordsCell do
 
   defp to_quoted(%{"keyword" => keyword, "variants" => variants}) do
     quote do
-      frame = Kino.Frame.new()
-
-      Kino.Frame.render(frame, Kino.Text.new("Running..."))
-
       {keywords, variant_keywords} =
         unquote(keyword)
         |> KinoAmazonKeywords.Keywords.fetch(unquote(variants))
