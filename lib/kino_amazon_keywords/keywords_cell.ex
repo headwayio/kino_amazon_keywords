@@ -44,19 +44,13 @@ defmodule KinoAmazonKeywords.KeywordsCell do
   end
 
   @impl true
-  def handle_event("submit", _, ctx) do
-    ctx = update(ctx, :fields, &Map.merge(&1, ctx.assigns.fields))
-    {:noreply, ctx}
-  end
-
-  @impl true
   def handle_cast(_msg, ctx) do
     {:ok, ctx}
   end
 
   defp to_quoted(%{"keyword" => ""}) do
     quote do
-      Kino.inspect("Enter a keyword to get started")
+      Kino.nothing()
     end
   end
 
