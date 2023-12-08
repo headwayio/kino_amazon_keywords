@@ -55,4 +55,46 @@ defmodule KinoAmazonKeywords.Keywords do
     "https://completion.amazon.com/api/2017/suggestions?limit=11&prefix=#{prefix}&suggestion-type=#{@suggestion_type1}&suggestion-type=#{@suggestion_type2}&page-type=Search&alias=aps&site-variant=desktop&version=3&event=onkeypress&wc=&lop=en_US&last-prefix=#{last_prefix}&avg-ks-time=567&fb=1&session-id=147-2944963-3693218&request-id=9TT8PTZBJASW7WDSG87R&mid=ATVPDKIKX0DER&plain-mid=1&client-info=amazon-search-ui"
     |> URI.encode()
   end
+
+  def images(prefix) do
+    url =
+      "https://www.amazon.com/s?k=#{prefix}"
+      |> URI.encode()
+
+    {:ok, response} = Req.get(url)
+    {:ok, html} = Floki.parse_document(response.body)
+
+    products = Floki.find(html, ".s-search-results [data-component-type=\"s-search-result\"]")
+
+    images =
+      products
+      |> Floki.find(".s-product-image-container")
+      |> Enum.map(fn item ->
+        image =
+          item
+          |> Floki.attribute("img", "src")
+          |> Enum.at(0)
+
+        url =
+          item
+          |> Floki.attribute("a:first-child", "href")
+          |> Enum.at(0)
+
+        {image, url}
+      end)
+
+    details =
+      products
+      |> Floki.find(".s-product-image-container + div")
+      |> Enum.map(fn item ->
+        text =
+          item
+          |> Floki.find("h2:first-child span")
+          |> Floki.text()
+
+        text
+      end)
+
+    Enum.zip(details, images)
+  end
 end

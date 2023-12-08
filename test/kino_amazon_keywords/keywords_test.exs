@@ -7,4 +7,8 @@ defmodule KinoAmazonKeywords.KeywordsTest do
     {left, right} = Keywords.fetch("candle", true)
     assert [] == right
   end
+
+  test "products" do
+    image_urls = Keywords.images("candles")
+  end
 end

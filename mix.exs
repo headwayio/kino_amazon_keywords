@@ -32,7 +32,8 @@ defmodule KinoAmazonKeywords.MixProject do
       {:kino, "~> 0.11.3"},
       {:req, "~> 0.4.0"},
       {:explorer, "~> 0.7.1"},
-      {:kino_explorer, "~> 0.1.11"}
+      {:kino_explorer, "~> 0.1.11"},
+      {:floki, "~> 0.35.2"}
     ]
   end
 
