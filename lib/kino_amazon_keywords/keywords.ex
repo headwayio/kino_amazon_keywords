@@ -95,6 +95,10 @@ defmodule KinoAmazonKeywords.Keywords do
         text
       end)
 
-    Enum.zip(details, images)
+    details
+    |> Enum.zip(images)
+    |> Enum.map(fn {title, {image, url}} ->
+      %{title: title, image: image, product_url: url}
+    end)
   end
 end

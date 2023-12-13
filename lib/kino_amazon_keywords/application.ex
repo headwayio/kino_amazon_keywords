@@ -7,6 +7,7 @@ defmodule KinoAmazonKeywords.Application do
   def start(_type, _args) do
     Kino.SmartCell.register(KinoAmazonKeywords.KeywordsCell)
     Kino.SmartCell.register(KinoAmazonKeywords.ProductsCell)
+    Kino.SmartCell.register(KinoAmazonKeywords.KeywordsByASINCell)
 
     children = []
     opts = [strategy: :one_for_one, name: KinoAmazonKeywords.Supervisor]
