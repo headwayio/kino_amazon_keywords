@@ -169,34 +169,44 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
 
           case Map.get(acc, term) do
             nil ->
-              asin_ranks = %{asin => recent_rank}
-              Map.put(acc, term, %{asin_ranks: asin_ranks, tv: volume, count: 1})
+              row =
+                unquote(competitors)
+                |> Enum.reduce(%{tv: volume, count: 1}, fn asin, asin_acc ->
+                  Map.put(asin_acc, asin, recent_rank)
+                end)
+
+              Map.put(acc, term, row)
 
             _row ->
-              Map.update(acc, term, %{}, fn current ->
-                {_, asin_ranks} =
-                  Map.get_and_update(current[:asin_ranks], asin, fn rank ->
-                    {rank, recent_rank}
+              Map.update(acc, term, %{tv: volume, count: 0}, fn current ->
+                row =
+                  unquote(competitors)
+                  |> Enum.reduce(%{}, fn asin, asin_acc ->
+                    Map.put(asin_acc, asin, recent_rank)
                   end)
 
                 %{
-                  asin_ranks: asin_ranks,
                   tv: (current[:volume] || 0) + volume,
                   count: current[:count] + 1
                 }
+                |> Map.merge(row)
               end)
           end
         end)
         |> Enum.into([], fn {key, value} ->
           relevancy = Float.round(value[:count] / total_asins, 5)
 
-          %{
+          search_term = %{
             "Search Term" => key,
             "TV (total volume)" => value[:tv],
             "Relevancy %" => relevancy,
-            "ASIN Ranks" => "TODO",
             "Data Source" => "Smart Scout"
           }
+
+          unquote(competitors)
+          |> Enum.reduce(search_term, fn competitor, competitor_acc ->
+            Map.put(competitor_acc, competitor, value[competitor])
+          end)
         end)
         |> Explorer.DataFrame.new()
         |> Explorer.DataFrame.relocate("Search Term", before: 0)
