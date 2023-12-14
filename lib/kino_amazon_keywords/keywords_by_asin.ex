@@ -139,12 +139,14 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
                         end
                       end)
                       |> Kernel./(search_term_product_ranks_dailies_count)
+                      |> Float.round()
 
                     %{
-                      search_term: item["searchTerm"]["searchTermValue"],
-                      volume: item["searchTerm"]["estimateSearches"],
-                      recent_rank: recent_rank,
-                      asin: asin
+                      "Search Term" => item["searchTerm"]["searchTermValue"],
+                      "TV (total volume)" => item["searchTerm"]["estimateSearches"],
+                      "Relevancy %" => recent_rank,
+                      "Data Source" => "Smart Scout",
+                      "ASIN" => asin
                     }
                   end)
 
@@ -157,58 +159,9 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
           |> Enum.to_list()
           |> Enum.flat_map(fn {:ok, item} -> item end)
 
-        total_asins = Enum.count(results)
-        uniq_asins = Enum.uniq_by(results, fn item -> item[:asin] end)
-
         results
-        |> Enum.reduce(%{}, fn item, acc ->
-          term = item[:search_term]
-          volume = item[:volume]
-          recent_rank = item[:recent_rank]
-          asin = item[:asin]
-
-          case Map.get(acc, term) do
-            nil ->
-              row =
-                unquote(competitors)
-                |> Enum.reduce(%{tv: volume, count: 1}, fn asin, asin_acc ->
-                  Map.put(asin_acc, asin, recent_rank)
-                end)
-
-              Map.put(acc, term, row)
-
-            _row ->
-              Map.update(acc, term, %{tv: volume, count: 0}, fn current ->
-                row =
-                  unquote(competitors)
-                  |> Enum.reduce(%{}, fn asin, asin_acc ->
-                    Map.put(asin_acc, asin, recent_rank)
-                  end)
-
-                %{
-                  tv: (current[:volume] || 0) + volume,
-                  count: current[:count] + 1
-                }
-                |> Map.merge(row)
-              end)
-          end
-        end)
-        |> Enum.into([], fn {key, value} ->
-          relevancy = Float.round(value[:count] / total_asins, 5)
-
-          search_term = %{
-            "Search Term" => key,
-            "TV (total volume)" => value[:tv],
-            "Relevancy %" => relevancy,
-            "Data Source" => "Smart Scout"
-          }
-
-          unquote(competitors)
-          |> Enum.reduce(search_term, fn competitor, competitor_acc ->
-            Map.put(competitor_acc, competitor, value[competitor])
-          end)
-        end)
         |> Explorer.DataFrame.new()
+        |> Explorer.DataFrame.pivot_wider("ASIN", "Relevancy %")
         |> Explorer.DataFrame.relocate("Search Term", before: 0)
         |> Explorer.DataFrame.relocate("TV (total volume)", after: 0)
       end
