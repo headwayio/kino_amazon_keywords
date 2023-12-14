@@ -96,7 +96,11 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
               request_body = Jason.encode!(%{asin: asin})
 
               {:ok, %Req.Response{body: body}} =
-                [url: System.fetch_env!("LB_SMART_SCOUT_GET_ASIN_ID_URL")]
+                [
+                  url: System.fetch_env!("LB_SMART_SCOUT_GET_ASIN_ID_URL"),
+                  retry: :safe_transient,
+                  receive_timeout: 40_000
+                ]
                 |> Req.new()
                 |> Req.Request.put_headers(headers)
                 |> Req.post(body: request_body)
@@ -112,7 +116,11 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
                   rankFactor: 100
                 })
 
-              case [url: System.fetch_env!("LB_SMART_SCOUT_GET_ORGANIC_RANKS_URL")]
+              case [
+                     url: System.fetch_env!("LB_SMART_SCOUT_GET_ORGANIC_RANKS_URL"),
+                     retry: :safe_transient,
+                     receive_timeout: 40_000
+                   ]
                    |> Req.new()
                    |> Req.Request.put_headers(headers)
                    |> Req.post(body: request_body) do
@@ -144,7 +152,7 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
                   error
               end
             end,
-            timeout: 60000
+            timeout: 100_000
           )
           |> Enum.to_list()
           |> Enum.flat_map(fn {:ok, item} -> item end)
