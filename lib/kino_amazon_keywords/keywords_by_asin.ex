@@ -142,11 +142,10 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
                       |> Float.round()
 
                     %{
-                      "Search Term" => item["searchTerm"]["searchTermValue"],
-                      "TV (total volume)" => item["searchTerm"]["estimateSearches"],
-                      "Relevancy %" => recent_rank,
-                      "Data Source" => "Smart Scout",
-                      "ASIN" => asin
+                      search_term: item["searchTerm"]["searchTermValue"],
+                      total_volume: item["searchTerm"]["estimateSearches"],
+                      recent_rank: recent_rank,
+                      asin: asin
                     }
                   end)
 
@@ -159,11 +158,53 @@ defmodule KinoAmazonKeywords.KeywordsByASINCell do
           |> Enum.to_list()
           |> Enum.flat_map(fn {:ok, item} -> item end)
 
+        uniq_asins =
+          results
+          |> Enum.map(& &1[:asin])
+          |> Enum.uniq()
+
+        default_asins_rank = Enum.into(uniq_asins, %{}, fn item -> {item, 0} end)
+        asins_count = Enum.count(uniq_asins)
+
         results
+        |> Enum.reduce(%{}, fn item, acc ->
+          row =
+            acc
+            |> Map.get(item[:search_term], %{total_volume: 0, count: 0, asin_ranks: %{}})
+            |> update_in([:count], &(&1 + 1))
+            |> update_in([:total_volume], &(&1 + item[:total_volume]))
+            |> update_in([:asin_ranks, item[:asin]], fn _ -> item[:recent_rank] end)
+
+          Map.merge(acc, %{item[:search_term] => row})
+        end)
+        |> Enum.reduce([], fn {key, value}, acc ->
+          relevancy =
+            if is_integer(value[:count]) && value[:count] > 0 do
+              value[:count] / asins_count
+            else
+              0
+            end
+
+          row = %{
+            "Search Term" => key,
+            "TV (total volume)" => value[:total_volume],
+            "Relevancy (%)" => relevancy,
+            "Data Source" => "SmartScout"
+          }
+
+          row_with_asins =
+            uniq_asins
+            |> Enum.reduce(%{}, fn asin, acc ->
+              update_in(acc, [asin], fn _ -> value[:asin_ranks][asin] end)
+            end)
+            |> Map.merge(row)
+
+          [row_with_asins] ++ acc
+        end)
         |> Explorer.DataFrame.new()
-        |> Explorer.DataFrame.pivot_wider("ASIN", "Relevancy %")
         |> Explorer.DataFrame.relocate("Search Term", before: 0)
         |> Explorer.DataFrame.relocate("TV (total volume)", after: 0)
+        |> Explorer.DataFrame.relocate("Relevancy (%)", after: 1)
       end
     else
       quote do
