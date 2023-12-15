@@ -8,6 +8,7 @@ defmodule KinoAmazonKeywords.Application do
     Kino.SmartCell.register(KinoAmazonKeywords.KeywordsCell)
     Kino.SmartCell.register(KinoAmazonKeywords.ProductsCell)
     Kino.SmartCell.register(KinoAmazonKeywords.KeywordsByASINCell)
+    Kino.SmartCell.register(KinoAmazonKeywords.KeywordRootAnalysisCell)
 
     children = []
     opts = [strategy: :one_for_one, name: KinoAmazonKeywords.Supervisor]
