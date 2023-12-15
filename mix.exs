@@ -1,7 +1,7 @@
 defmodule KinoAmazonKeywords.MixProject do
   use Mix.Project
 
-  @version "0.1.9"
+  @version "0.1.10"
   @description "Create dataframe from popular search terms from Amazon"
 
   def project do
