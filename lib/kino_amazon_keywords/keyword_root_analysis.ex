@@ -5,6 +5,7 @@ defmodule KinoAmazonKeywords.KeywordRootAnalysisCell do
   use Kino.SmartCell, name: "Keyword Root Analysis"
 
   alias Explorer.DataFrame
+  alias KinoAmazonKeywords.KeywordRootProcessor
 
   def new do
     Kino.JS.new(__MODULE__, %{fields: %{}})
@@ -139,11 +140,11 @@ defmodule KinoAmazonKeywords.KeywordRootAnalysisCell do
     {:ok, ctx}
   end
 
-  defp to_quoted(%{"data_frame" => nil}) do
-    quote do
-      Kino.Shorts.text("nothing")
-    end
-  end
+  defp to_quoted(%{"data_frame" => nil}),
+    do: Kino.Shorts.text("Select a data frame to get started")
+
+  defp to_quoted(%{"data_frame" => ""}),
+    do: Kino.Shorts.text("Select a data frame to get started")
 
   defp to_quoted(%{"data_frame" => df, "assign_to" => variable} = attrs) do
     attrs = Map.new(attrs, fn {k, v} -> convert_field(k, v) end)
@@ -163,13 +164,38 @@ defmodule KinoAmazonKeywords.KeywordRootAnalysisCell do
 
     root = build_root(df)
 
-    nodes
-    |> Enum.reduce(root, &apply_node/2)
-    |> build_var(variable)
-    |> build_missing_require(missing_require)
+    terms =
+      nodes
+      |> Enum.reduce(root, &apply_node/2)
+      |> build_var(variable)
+      |> build_missing_require(missing_require)
 
-    dbg()
+    quote do
+      one_root_keywords =
+        unquote(terms)
+        |> Explorer.DataFrame.select(["Search Term", "TV (total volume)", "Relevancy (%)"])
+        |> Explorer.DataFrame.collect()
+        |> Explorer.DataFrame.to_rows()
+        |> KinoAmazonKeywords.KeywordRootProcessor.process_one_root_keywords()
+
+      two_root_keywords =
+        unquote(terms)
+        |> Explorer.DataFrame.select(["Search Term", "TV (total volume)", "Relevancy (%)"])
+        |> Explorer.DataFrame.collect()
+        |> Explorer.DataFrame.to_rows()
+        |> KinoAmazonKeywords.KeywordRootProcessor.process_two_root_keywords(one_root_keywords)
+        |> Enum.map(fn item ->
+          %{root: item.root, volume: item.volume, keyword_count: item.keyword_count}
+        end)
+        # |> Enum.map(fn item ->
+        #   keywords = Enum.map(item[:keywords], fn i -> "[#{i}]" end)
+        #   Map.merge(item, %{keywords: keywords}) |> dbg()
+        # end)
+        |> Explorer.DataFrame.new()
+    end
   end
+
+  # https://app.windmill.dev/api/w/superdisco/jobs/run_wait_result/f/f/KeywordClustering/SearchQueryClustering
 
   defp data_frame_alias(%Macro.Env{aliases: aliases}) do
     case List.keyfind(aliases, Explorer.DataFrame, 1) do
