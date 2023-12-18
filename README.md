@@ -1,4 +1,4 @@
-# KinoAmazonKeywords
+# KinoKeywords
 
 **TODO: Add description**
 
@@ -10,12 +10,11 @@ by adding `kino_amazon_keywords` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:kino_amazon_keywords, "~> 0.1.0"}
+    {:kino_keywords, "~> 0.1.0"}
   ]
 end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/kino_amazon_keywords>.
-
+be found at <https://hexdocs.pm/kino_keywords>.

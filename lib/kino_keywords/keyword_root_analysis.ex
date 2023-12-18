@@ -1,11 +1,11 @@
-defmodule KinoAmazonKeywords.KeywordRootAnalysisCell do
+defmodule KinoKeywords.KeywordRootAnalysisCell do
   @moduledoc false
   use Kino.JS, assets_path: "lib/assets/keyword-root-analysis"
   use Kino.JS.Live
   use Kino.SmartCell, name: "Keyword Root Analysis"
 
   alias Explorer.DataFrame
-  alias KinoAmazonKeywords.KeywordRootProcessor
+  alias KinoKeywords.KeywordRootProcessor
 
   def new do
     Kino.JS.new(__MODULE__, %{fields: %{}})
@@ -176,14 +176,14 @@ defmodule KinoAmazonKeywords.KeywordRootAnalysisCell do
         |> Explorer.DataFrame.select(["Search Term", "TV (total volume)", "Relevancy (%)"])
         |> Explorer.DataFrame.collect()
         |> Explorer.DataFrame.to_rows()
-        |> KinoAmazonKeywords.KeywordRootProcessor.process_one_root_keywords()
+        |> KinoKeywords.KeywordRootProcessor.process_one_root_keywords()
 
       two_root_keywords =
         unquote(terms)
         |> Explorer.DataFrame.select(["Search Term", "TV (total volume)", "Relevancy (%)"])
         |> Explorer.DataFrame.collect()
         |> Explorer.DataFrame.to_rows()
-        |> KinoAmazonKeywords.KeywordRootProcessor.process_two_root_keywords(one_root_keywords)
+        |> KinoKeywords.KeywordRootProcessor.process_two_root_keywords(one_root_keywords)
         |> Enum.map(fn item ->
           %{root: item.root, volume: item.volume, keyword_count: item.keyword_count}
         end)

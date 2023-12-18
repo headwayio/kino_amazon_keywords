@@ -1,8 +1,8 @@
-defmodule KinoAmazonKeywords.ProductsCell do
+defmodule KinoKeywords.KeywordsCell do
   @moduledoc false
   use Kino.JS, assets_path: "lib/assets"
   use Kino.JS.Live
-  use Kino.SmartCell, name: "Amazon Product Images"
+  use Kino.SmartCell, name: "Keywords"
 
   def new do
     Kino.JS.new(__MODULE__, %{fields: %{}})
@@ -67,7 +67,7 @@ defmodule KinoAmazonKeywords.ProductsCell do
     quote do
       {keywords, variant_keywords} =
         unquote(keyword)
-        |> KinoAmazonKeywords.Keywords.fetch(unquote(variants))
+        |> KinoKeywords.Keywords.fetch(unquote(variants))
 
       keyword_series = Explorer.Series.from_list(keywords, dtype: :string)
       keyword_df = Explorer.DataFrame.new(Keywords: keyword_series)

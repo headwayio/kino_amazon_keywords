@@ -1,6 +1,6 @@
-defmodule KinoAmazonKeywords.Keywords do
+defmodule KinoKeywords.Keywords do
   @moduledoc """
-  Fetch keywords from Amazon
+  Fetch keywords
   """
 
   @suggestion_type1 "KEYWORD"
@@ -13,10 +13,10 @@ defmodule KinoAmazonKeywords.Keywords do
 
   ## Examples
 
-      iex> KinoAmazonKeywords.Keywords.fetch("candles")
+      iex> KinoKeywords.Keywords.fetch("candles")
       {["candles", "holiday candles", "candles scented"], []}
 
-      iex> KinoAmazonKeywords.Keywords.fetch("candles", true)
+      iex> KinoKeywords.Keywords.fetch("candles", true)
       {["candles", "holiday candles", "candles scented"], ["candles advent", "candles aroma therapy", "candles accessory"]}
 
   """

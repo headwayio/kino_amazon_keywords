@@ -1,8 +1,8 @@
-defmodule KinoAmazonKeywords.KeywordsByASINCell do
+defmodule KinoKeywords.KeywordsByASINCell do
   @moduledoc false
   use Kino.JS, assets_path: "lib/assets/keywords-by-asin"
   use Kino.JS.Live
-  use Kino.SmartCell, name: "Amazon Keywords by ASIN"
+  use Kino.SmartCell, name: "Keywords by ASIN"
 
   def new do
     Kino.JS.new(__MODULE__, %{fields: %{}})

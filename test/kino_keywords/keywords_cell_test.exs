@@ -1,9 +1,9 @@
-defmodule KinoAmazonKeywords.KeywordsCellTest do
+defmodule KinoKeywords.KeywordsCellTest do
   use ExUnit.Case, async: true
 
   import Kino.Test
 
-  alias KinoAmazonKeywords.KeywordsCell
+  alias KinoKeywords.KeywordsCell
 
   setup :configure_livebook_bridge
 
@@ -54,7 +54,7 @@ defmodule KinoAmazonKeywords.KeywordsCellTest do
                if keyword do
                  Kino.Frame.render(frame, Kino.Text.new("Running..."))
 
-                 keywords = KinoAmazonKeywords.Keywords.fetch(keyword)
+                 keywords = KinoKeywords.Keywords.fetch(keyword)
 
                  new_data_frame = Explorer.DataFrame.new(keywords: Explorer.Series.from_list(["abc", "123"], dtype: :string))
                  Explorer.DataFrame.join(data_frame, new_data_frame)

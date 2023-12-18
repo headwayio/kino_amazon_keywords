@@ -1,5 +1,5 @@
-defmodule KinoAmazonKeywords.KeywordRootProcessor do
-  alias KinoAmazonKeywords.{KeywordRow, TwoRootRow, KeywordRow2}
+defmodule KinoKeywords.KeywordRootProcessor do
+  alias KinoKeywords.{KeywordRow, TwoRootRow, KeywordRow2}
 
   def process_one_root_keywords(keyword_rows, negative_keywords \\ []) do
     %{roots: roots, keyword_counts: keyword_counts} =
