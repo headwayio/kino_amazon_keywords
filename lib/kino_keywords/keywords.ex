@@ -6,6 +6,8 @@ defmodule KinoKeywords.Keywords do
   @suggestion_type1 "KEYWORD"
   @suggestion_type2 "WIDGET"
 
+  alias KinoKeywords.Http.Client
+
   @doc """
   Fetch top keywords matching the given keyword.
   Optionally request variants which will append A-Z to the keyword
@@ -36,7 +38,7 @@ defmodule KinoKeywords.Keywords do
     [original_keywords | variant_keywords] =
       urls
       |> Stream.map(fn item ->
-        {:ok, response} = Req.get(item)
+        {:ok, response} = Client.get(item)
 
         response.body["suggestions"]
         |> Enum.map(fn item -> item["value"] end)
@@ -61,7 +63,7 @@ defmodule KinoKeywords.Keywords do
       "https://www.amazon.com/s?k=#{prefix}"
       |> URI.encode()
 
-    {:ok, response} = Req.get(url)
+    {:ok, response} = Client.get(url)
     {:ok, html} = Floki.parse_document(response.body)
 
     products = Floki.find(html, ".s-search-results [data-component-type=\"s-search-result\"]")

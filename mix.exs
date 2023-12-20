@@ -31,7 +31,8 @@ defmodule KinoKeywords.MixProject do
       {:req, "~> 0.4.0"},
       {:explorer, "~> 0.7.1"},
       {:kino_explorer, "~> 0.1.11"},
-      {:floki, "~> 0.35.2"}
+      {:floki, "~> 0.35.2"},
+      {:mock, "~> 0.3.0", only: :test}
     ]
   end
 
