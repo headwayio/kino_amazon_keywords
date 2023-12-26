@@ -81,4 +81,38 @@ defmodule KinoKeywords.KeywordRootProcessorTest do
              }
            ] == result
   end
+
+  test "stack_root_keywords" do
+    one_root_data =
+      [
+        %{"Search Term" => "candle", "TV (total volume)" => 5, "Relevancy (%)" => 0.95},
+        %{"Search Term" => "holiday candles", "TV (total volume)" => 3, "Relevancy (%)" => 0.75},
+        %{
+          "Search Term" => "scented candles for the holidays",
+          "TV (total volume)" => 2,
+          "Relevancy (%)" => 0.25
+        }
+      ]
+
+    one_root_rows =
+      one_root_data
+      |> KeywordRootProcessor.process_one_root_keywords()
+
+    two_root_data = KeywordRootProcessor.process_two_root_keywords(one_root_data, one_root_rows)
+
+    assert [
+             %{root: "candles", volume: 2.75, frequency: 2},
+             %{root: "candle", volume: 4.75, frequency: 1},
+             %{root: "holiday", volume: 2.25, frequency: 1},
+             %{root: "for", volume: 0.5, frequency: 1},
+             %{root: "holidays", volume: 0.5, frequency: 1},
+             %{root: "scented", volume: 0.5, frequency: 1},
+             %{root: "the", volume: 0.5, frequency: 1},
+             %{root: "holiday candles", volume: 2.25, frequency: 1},
+             %{root: "candles for", volume: 0.5, frequency: 1},
+             %{root: "for the", volume: 0.5, frequency: 1},
+             %{root: "scented candles", volume: 0.5, frequency: 1},
+             %{root: "the holidays", volume: 0.5, frequency: 1}
+           ] == KeywordRootProcessor.stack_root_keywords(one_root_rows, two_root_data)
+  end
 end

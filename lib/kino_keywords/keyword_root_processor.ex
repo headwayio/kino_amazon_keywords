@@ -12,7 +12,7 @@ defmodule KinoKeywords.KeywordRootProcessor do
     One root keywords are the first or only word in a search keyword. For example,
     given the keyword "scented candles for the holidays", the one root keywords would be
     "scented", "candles", "for", "the", and "holidays".
-  
+
     Given a list of keyword phrases, keywords appearing more than once are grouped together
     and their volumes and frequency numbers are summed.
   """
@@ -120,6 +120,23 @@ defmodule KinoKeywords.KeywordRootProcessor do
     |> Enum.sort_by(& &1.volume, &>=/2)
     |> Enum.filter(&(&1.keyword_count != 0))
     |> Enum.filter(fn x -> !Enum.any?(negative_keywords, &String.contains?(x.root, &1)) end)
+  end
+
+  def stack_root_keywords(one_root_keywords, two_root_keywords) do
+    one_root_keyword_list =
+      one_root_keywords
+      |> Enum.map(fn %{"OneRoot" => one_root, "Volume" => volume, "Frequency" => frequency} ->
+        %{root: one_root, volume: volume, frequency: frequency}
+      end)
+
+    two_root_keyword_list =
+      two_root_keywords
+      |> Enum.map(fn %TwoRootRow{root: two_root, volume: volume, keyword_count: keyword_count} ->
+        %{root: two_root, volume: volume, frequency: keyword_count}
+      end)
+
+    (one_root_keyword_list ++ two_root_keyword_list)
+    |> Enum.sort_by(& &1.frequency, &>=/2)
   end
 
   defp process_row(
