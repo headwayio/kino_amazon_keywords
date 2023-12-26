@@ -9,7 +9,12 @@ defmodule KinoKeywords.KeywordRootProcessor do
     - "TV (total volume)"
     - "Relevancy (%)"
 
-
+    One root keywords are the first or only word in a search keyword. For example,
+    given the keyword "scented candles for the holidays", the one root keywords would be
+    "scented", "candles", "for", "the", and "holidays".
+  
+    Given a list of keyword phrases, keywords appearing more than once are grouped together
+    and their volumes and frequency numbers are summed.
   """
   def process_one_root_keywords(keyword_rows, negative_keywords \\ []) do
     %{roots: roots, keyword_counts: keyword_counts} =
@@ -42,6 +47,15 @@ defmodule KinoKeywords.KeywordRootProcessor do
     output_data
   end
 
+  @doc """
+    Extracts two root keywords from a list of keyword phrases and one root keywords.
+
+    Two root keywords are instances of KinoKeywords.TwoRootRow structs.
+
+    Two root keywords are two-word permutations of keyword phrases. For example,
+    given the keyword phrase "scented candles for the holidays", the two root keywords would be
+    "scented candles", "candles for", "for the", and "the holidays".
+  """
   def process_two_root_keywords(keyword_rows, one_root_rows, negative_keywords \\ []) do
     roots_map =
       Enum.reduce(one_root_rows, %{}, fn row, acc ->
