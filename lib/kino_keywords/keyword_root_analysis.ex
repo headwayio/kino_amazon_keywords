@@ -171,18 +171,16 @@ defmodule KinoKeywords.KeywordRootAnalysisCell do
       |> build_missing_require(missing_require)
 
     quote do
-      one_root_keywords =
+      rows =
         unquote(terms)
         |> Explorer.DataFrame.select(["Search Term", "TV (total volume)", "Relevancy (%)"])
         |> Explorer.DataFrame.collect()
         |> Explorer.DataFrame.to_rows()
-        |> KinoKeywords.KeywordRootProcessor.process_one_root_keywords()
+
+      one_root_keywords = KinoKeywords.KeywordRootProcessor.process_one_root_keywords(rows)
 
       two_root_keywords =
-        unquote(terms)
-        |> Explorer.DataFrame.select(["Search Term", "TV (total volume)", "Relevancy (%)"])
-        |> Explorer.DataFrame.collect()
-        |> Explorer.DataFrame.to_rows()
+        rows
         |> KinoKeywords.KeywordRootProcessor.process_two_root_keywords(one_root_keywords)
         |> Enum.map(fn item ->
           %{root: item.root, volume: item.volume, keyword_count: item.keyword_count}

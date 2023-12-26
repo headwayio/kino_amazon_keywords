@@ -1,6 +1,16 @@
 defmodule KinoKeywords.KeywordRootProcessor do
   alias KinoKeywords.{KeywordRow, TwoRootRow, KeywordRow2}
 
+  @doc """
+    Extracts one root keywords from a list of keyword rows.
+
+    Keyword rows are maps with the following keys:
+    - "Search Term"
+    - "TV (total volume)"
+    - "Relevancy (%)"
+
+
+  """
   def process_one_root_keywords(keyword_rows, negative_keywords \\ []) do
     %{roots: roots, keyword_counts: keyword_counts} =
       Enum.reduce(
@@ -12,13 +22,12 @@ defmodule KinoKeywords.KeywordRootProcessor do
              "TV (total volume)" => total_volume
            },
            acc ->
-          row = %KeywordRow{
+          %KeywordRow{
             Keyword: search_term,
             SearchVolume: total_volume,
             Relevancy: relevancy
           }
-
-          process_row(row, acc)
+          |> process_row(acc)
         end
       )
 
@@ -74,30 +83,29 @@ defmodule KinoKeywords.KeywordRootProcessor do
 
         words = String.split(keyword, " ")
 
-        Enum.reduce(0..(length(words) - 2), acc, fn i, acc ->
-          possible_two_root = Enum.join(Enum.slice(words, i, 2), " ")
+        Enum.reduce(0..(length(words) - 2), acc, fn i, two_root_acc ->
+          possible_two_root =
+            words
+            |> Enum.slice(i, 2)
+            |> Enum.join(" ")
 
-          case Map.get(acc, possible_two_root) do
+          case Map.get(two_root_acc, possible_two_root) do
             %TwoRootRow{} = two_root ->
-              %{acc | possible_two_root => update_two_root(two_root, volume, keyword)}
+              updated_two_root = update_two_root(two_root, volume, keyword)
+
+              %{two_root_acc | possible_two_root => updated_two_root}
 
             _ ->
-              acc
+              two_root_acc
           end
         end)
       end)
 
-    two_roots =
-      two_roots_map
-      |> Map.values()
-      |> Enum.sort_by(& &1.volume, &>=/2)
-
-    two_roots =
-      two_roots
-      |> Enum.filter(&(&1.keyword_count != 0))
-      |> Enum.filter(fn x -> !Enum.any?(negative_keywords, &String.contains?(x.root, &1)) end)
-
-    two_roots
+    two_roots_map
+    |> Map.values()
+    |> Enum.sort_by(& &1.volume, &>=/2)
+    |> Enum.filter(&(&1.keyword_count != 0))
+    |> Enum.filter(fn x -> !Enum.any?(negative_keywords, &String.contains?(x.root, &1)) end)
   end
 
   defp process_row(
