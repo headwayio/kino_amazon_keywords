@@ -24,3 +24,5 @@ kino_amazon_keywords-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+/lib/python/__pycache__
