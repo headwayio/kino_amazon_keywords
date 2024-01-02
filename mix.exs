@@ -1,7 +1,7 @@
 defmodule KinoKeywords.MixProject do
   use Mix.Project
 
-  @version "0.1.12"
+  @version "0.1.13"
   @description "Collection of Super Disco smart cells for keyword management"
 
   def project do
