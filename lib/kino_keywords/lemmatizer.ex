@@ -31,6 +31,6 @@ defmodule KinoKeywords.Lemmatizer do
   end
 
   defp start_python do
-    Python.start(python: :python3, python_path: Path.expand("lib/python"))
+    Python.start(python: "python3", python_path: Path.expand("lib/python"))
   end
 end
