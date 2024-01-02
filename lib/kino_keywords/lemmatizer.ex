@@ -1,13 +1,18 @@
 defmodule KinoKeywords.Lemmatizer do
   use Export.Python
 
+  def ls do
+    File.cwd!()
+    __ENV__.file
+  end
+
   def upcase(text) do
     # path to our python files
     {:ok, py} = start_python()
 
     # call "upcase" method from "test" file with "hello" argument
     py
-    |> Python.call("lemmatizer", "upcase", [text])
+    |> Python.call("lib/python/lemmatizer", "upcase", [text])
 
     # same as above but prettier
     val = py |> Python.call(upcase(text), from_file: "lemmatizer")
@@ -30,7 +35,13 @@ defmodule KinoKeywords.Lemmatizer do
     val
   end
 
-  defp start_python do
-    Python.start(python: "python3", python_path: Path.expand("lib/python"))
+  def start_python do
+    Python.start(python: "python3", python_path: python_modules_dir())
+  end
+
+  def python_modules_dir do
+    __ENV__.file
+    |> Path.join("../../python/")
+    |> Path.expand()
   end
 end
