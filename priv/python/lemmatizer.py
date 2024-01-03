@@ -9,7 +9,24 @@ See:
 
 from erlport.erlterms import Atom
 
+import inspect
+import json
+import sys
+import nltk
+
+from nltk.stem import WordNetLemmatizer
+from collections import defaultdict
+
 XmlTreeDict = {}
 
+def foo():
+    return json.dumps({'foo': sys.path})
+
 def upcase(text):
-  return text.upper()
+    nltk.download('wordnet')
+
+    text = json.loads(text)
+
+    result = {'foo': text.get('foo').upper()}
+
+    return json.dumps(result)

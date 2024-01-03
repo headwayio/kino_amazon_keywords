@@ -3,8 +3,12 @@ defmodule KinoKeywords.LemmatizerTest do
 
   alias KinoKeywords.Lemmatizer
 
+  test "foo" do
+    dbg(Lemmatizer.foo())
+  end
+
   test "upcase" do
-    assert "HELLO" == Lemmatizer.upcase("hello")
+    assert %{"foo" => "HELLO"} == Lemmatizer.upcase("hello")
   end
 
   test "main" do
